@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mbol/resposta.dart';
+import 'package:mbol/questionario.dart';
 
-//widgets
-import './questoes.dart';
+import 'resultado.dart';
 
 main() {
   runApp(const App());
@@ -17,34 +16,63 @@ class App extends StatefulWidget {
 
 //class widget que usa os estados com widgets que atualizam o estado
 class _AppState extends State<App> {
-  final List<Map> _perguntas = const [
+  final _perguntas = const [
     {
       "texto": "Qual Melhor Time do mundo?",
-      "respostas": ["Flamengo", "Vasco", "Palmeiras"]
+      "respostas": [
+        {'texto': 'Real Madrid', 'nota': 10},
+        {'texto': 'Manchester City', 'nota': 8},
+        {'texto': 'Palmeiras', 'nota': 6},
+        {'texto': 'Flamengo', 'nota': 7}
+      ]
     },
     {
       "texto": "Qual melhor Goleiro ?",
-      "respostas": ["Eder", "Cassio", "Weverton"]
+      "respostas": [
+        {'texto': 'Weverton', 'nota': 0},
+        {'texto': 'Perri', 'nota': 7},
+        {'texto': 'Ederson', 'nota': 10},
+        {'texto': 'Matheus Cunha', 'nota': 8}
+      ]
     },
     {
       "texto": " Qual cor favorita?",
-      "respostas": ["Azul", "Preto", "Vermelho"]
+      "respostas": [
+        {'texto': 'Azul', 'nota': 0},
+        {'texto': 'Verde', 'nota': 10},
+        {'texto': 'Preto', 'nota': 6},
+        {'texto': 'Rosa', 'nota': 0}
+      ]
     },
     {
       "texto": " Qual campeao atual da libertadores?",
-      "respostas": ["BotaFogo", "Flamengo", "Corinthias"]
+      "respostas": [
+        {'texto': 'vasco', 'nota': 0},
+        {'texto': 'Flamenggo', 'nota': 10},
+        {'texto': 'Palmeiras', 'nota': 0},
+        {'texto': 'Criciuma', 'nota': 0}
+      ]
     }
   ];
 
   var _perguntaSelecionada = 0;
+  var _notaTotal = 0;
 
-  void _onPressed() {
+  void _onPressed(int nota) {
     //usando setState para monitorar a variavel mudando
     temPerguntaSelecionada
         ? setState(() {
             _perguntaSelecionada++;
+            _notaTotal += nota;
           })
         : null;
+  }
+
+  void _reiniciarQuestionario(){
+    setState(() {
+        _perguntaSelecionada = 0;
+        _notaTotal = 0;
+    });
   }
 
   bool get temPerguntaSelecionada {
@@ -53,10 +81,6 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> respostas = temPerguntaSelecionada
-        ? _perguntas[_perguntaSelecionada]['respostas']
-        : [];
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -66,23 +90,12 @@ class _AppState extends State<App> {
           backgroundColor: Colors.deepPurpleAccent,
         ),
         body: temPerguntaSelecionada
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment
-                    .center, // Alinha os elementos verticalmente ao centro
-                crossAxisAlignment: CrossAxisAlignment
-                    .center, // Alinha os elementos horizontalmente ao centro
-                children: <Widget>[
-                  Questoes(
-                      _perguntas[_perguntaSelecionada]['texto'].toString()),
-                  ...respostas.map((t) => Resposta(t, _onPressed)).toList()
-                ],
+            ? Questionario(
+                perguntas: _perguntas,
+                perguntaSelecionada: _perguntaSelecionada,
+                quandoResponder: _onPressed
               )
-            : const Center(
-                child: Text(
-                  'Parabens!',
-                  style: TextStyle(fontSize: 30),
-                ),
-              ),
+            :  Resultado(_notaTotal,_reiniciarQuestionario),
       ),
     );
   }
